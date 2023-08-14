@@ -1,4 +1,5 @@
 # Backtesting_TA_NEPSE_SUBINDEX
 This code was used in my thesis to compare the performance of various indicators over daily and weekly timeframes.
 
-file:///var/folders/54/562w1nvs3bndzw3hrm6tpznc0000gn/T/TemporaryItems/NSIRD_screencaptureui_jiOmJ0/Screenshot%202023-08-14%20at%202.13.33%20PM.png
+<img width="940" alt="Screenshot 2023-08-14 at 2 14 09 PM" src="https://github.com/icarussfalls/Backtesting_TA_NEPSE_SUBINDEX/assets/109421980/2b08b721-7f3e-49e7-85e3-bf48d98a2b87">
+
