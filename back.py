@@ -45,7 +45,7 @@ def aggregate_ohlc_data(daily_data):
     return weekly_data, monthly_data, yearly_data
 
 
-daily_data = pd.read_csv('HYDROPOWER.csv')
+daily_data = pd.read_csv('HOTELS.csv')
 #daily_data = clean_ohlc_data(daily_data)
 # Assuming you have a DataFrame called 'daily_data' with columns 'Date', 'Open', 'High', 'Low', 'Close', and 'Volume'
 weekly_data, monthly_data, yearly_data = aggregate_ohlc_data(daily_data)
@@ -251,33 +251,74 @@ def backtest_strategy(strategy_name, data, signals, starting_portfolio_value=100
     # Calculate strategy performance metrics
     total_return = strategy_returns.sum()
     trading_days_per_year = 52
+
+    # Calculate annualized return
     if total_return >= 0:
-        # If total return is non-negative, calculate the annualized return as usual
         annualized_return = (1 + total_return) ** (trading_days_per_year / len(data)) - 1
     else:
-        # If total return is negative, use the formula for negative total return
-        annualized_return = -((1 - total_return) ** (trading_days_per_year / len(data)) - 1)
+        positive_annualized_return = (1 + abs(total_return)) ** (trading_days_per_year / len(data)) - 1
+        annualized_return = -positive_annualized_return
+
+
+
 
     # Calculate final portfolio value using cumulative product of strategy returns
     final_portfolio_value = starting_portfolio_value * (1 + strategy_returns).cumprod().iloc[-1]
-    daily_volatility = strategy_returns.std()
-    annualized_volatility = daily_volatility * np.sqrt(trading_days_per_year)
+
+    # Calculate mean and standard deviation
+    mean_returns = np.mean(strategy_returns)
+    std_returns = np.std(strategy_returns)
+
+    # Normalize the data
+    normalized_returns = (strategy_returns - mean_returns) / std_returns
+
+    # Calculate the standard deviation of the normalized returns
+    strategy_std = np.std(normalized_returns)
+
+    # Calculate the total time period in years
+    total_time_years = len(strategy_returns) / trading_days_per_year
+
+    # Calculate annualized volatility
+    annualized_volatility = strategy_std * np.sqrt(total_time_years)
+
+    # Define risk-free rate
     risk_free_rate = 0.03
+
+    # Calculate daily risk-free rate
     risk_free_rate_daily = (1 + risk_free_rate) ** (1 / trading_days_per_year) - 1
+
+    # Calculate average return of the strategy
     average_return = np.mean(strategy_returns)
+
+    # Calculate excess return over risk-free rate
     excess_return = average_return - risk_free_rate_daily
+
+    # Calculate Sharpe Ratio
     sharpe_ratio = excess_return / annualized_volatility
+
+    # Calculate Buy and Hold Return
     buy_and_hold_return = (data['Close'].pct_change().fillna(0) + 1).cumprod().iloc[-1] - 1
+
+    # Calculate total trades and winning trades
     total_trades = len(entry_dates)
     winning_trades = sum(strategy_returns > 0)
+
+    # Calculate win percentage
     win_percentage = winning_trades / total_trades
+
+    # Calculate positive and negative returns
     positive_returns = strategy_returns[strategy_returns > 0]
     negative_returns = strategy_returns[strategy_returns < 0]
+
+    # Calculate profit factor
     profit_factor = positive_returns.sum() / abs(negative_returns.sum())
+
+    # Calculate cumulative returns, drawdown, and maximum drawdown
     cumulative_returns = (strategy_returns + 1).cumprod()
     peak = cumulative_returns.cummax()
     drawdown = cumulative_returns / peak - 1
     max_drawdown = drawdown.min()
+
 
 
     
